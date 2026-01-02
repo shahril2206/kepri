@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Calendar, ArrowRight, Rss, ExternalLink } from "lucide-react";
+import { Calendar, ArrowRight, Facebook } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { Button } from "@/components/ui/button";
@@ -55,15 +56,34 @@ const newsArticles = [
   },
 ];
 
-const rssSources = [
-  { name: "Sarawak Government News", url: "#" },
-  { name: "Malaysian Youth Council", url: "#" },
-  { name: "Community Development Updates", url: "#" },
-];
 
 const News = () => {
   const featuredArticles = newsArticles.filter(a => a.featured);
   const regularArticles = newsArticles.filter(a => !a.featured);
+
+  // Load Facebook SDK for Page Plugin
+  useEffect(() => {
+    // Load the SDK asynchronously
+    const loadFacebookSDK = () => {
+      if (document.getElementById("facebook-jssdk")) return;
+      
+      const script = document.createElement("script");
+      script.id = "facebook-jssdk";
+      script.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0";
+      script.async = true;
+      script.defer = true;
+      script.crossOrigin = "anonymous";
+      document.body.appendChild(script);
+    };
+
+    loadFacebookSDK();
+
+    // Re-parse when component mounts (for navigation)
+    const fbWindow = window as typeof window & { FB?: { XFBML: { parse: () => void } } };
+    if (fbWindow.FB) {
+      fbWindow.FB.XFBML.parse();
+    }
+  }, []);
 
   return (
     <Layout>
@@ -167,10 +187,10 @@ const News = () => {
         </div>
       </section>
 
-      {/* RSS Feeds Section */}
+      {/* Facebook Feed Section */}
       <section className="kepri-section bg-muted/50">
         <div className="kepri-container">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -178,42 +198,64 @@ const News = () => {
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-xl kepri-gradient-bg flex items-center justify-center">
-                  <Rss className="w-6 h-6 text-primary-foreground" />
+                  <Facebook className="w-6 h-6 text-primary-foreground" />
                 </div>
-                <span className="text-primary font-medium">RSS Feeds</span>
+                <span className="text-primary font-medium">Facebook Feed</span>
               </div>
               <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-                External News Sources
+                Follow Us on Facebook
               </h2>
               <p className="text-muted-foreground text-lg mb-6">
-                We aggregate relevant news and updates from government agencies, 
-                youth councils, and community development organizations to keep 
-                you informed about the broader landscape.
+                Stay connected with our latest activities, events, and community stories 
+                directly from our Facebook page. Like and follow us for real-time updates!
               </p>
+              <Button
+                asChild
+                size="lg"
+                className="kepri-gradient-bg border-0"
+              >
+                <a
+                  href="https://www.facebook.com/people/Kelab-Belia-Prihatin-Bandar-Kuching/61562936403037/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Visit Our Facebook Page
+                </a>
+              </Button>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="space-y-4"
+              className="flex justify-center lg:justify-end"
             >
-              {rssSources.map((source) => (
-                <a
-                  key={source.name}
-                  href={source.url}
-                  className="kepri-card p-4 flex items-center justify-between group"
+              <div className="kepri-card p-4 overflow-hidden">
+                <div 
+                  id="fb-root"
+                  className="fb-page" 
+                  data-href="https://www.facebook.com/people/Kelab-Belia-Prihatin-Bandar-Kuching/61562936403037/"
+                  data-tabs="timeline"
+                  data-width="400"
+                  data-height="500"
+                  data-small-header="false"
+                  data-adapt-container-width="true"
+                  data-hide-cover="false"
+                  data-show-facepile="true"
                 >
-                  <div className="flex items-center gap-3">
-                    <Rss className="w-5 h-5 text-primary" />
-                    <span className="font-medium text-foreground">{source.name}</span>
-                  </div>
-                  <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                </a>
-              ))}
-              <p className="text-muted-foreground text-sm pt-2">
-                * RSS feed integration will display real-time updates from these sources.
-              </p>
+                  <blockquote 
+                    cite="https://www.facebook.com/people/Kelab-Belia-Prihatin-Bandar-Kuching/61562936403037/" 
+                    className="fb-xfbml-parse-ignore"
+                  >
+                    <a href="https://www.facebook.com/people/Kelab-Belia-Prihatin-Bandar-Kuching/61562936403037/">
+                      Kelab Belia Prihatin Bandar Kuching
+                    </a>
+                  </blockquote>
+                </div>
+                <p className="text-muted-foreground text-sm mt-4 text-center">
+                  If the feed doesn't load, please visit our Facebook page directly.
+                </p>
+              </div>
             </motion.div>
           </div>
         </div>
